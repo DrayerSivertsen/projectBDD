@@ -20,6 +20,22 @@ class graph:
         for key, list in self.gdict.items():
             print(key, list)
 
+    def boolean_R(self):
+        expression = ""
+        for i in self.gdict:
+            binary_key = format(self.gdict.keys(), '05b')
+            expression += "("
+            for j in range(len(binary_key)):
+                if binary_key[j] == "0":
+                    expression += "~xx" + str(j)
+                else:
+                    formula += "xx" + str(j)
+                if j != len(binary_key) - 1:
+                    expression += " & "
+            expression += ")"
+            if self.gdict.keys() != 31:
+                expression += " | "
+
 
 R = graph()
 
@@ -77,11 +93,12 @@ def boolean_prime(prime_nums):
     return formula
 
 
+
+
 EVEN = expr(boolean_even(even_nums))
 PRIME = expr(boolean_prime(prime_nums))
 
 EVEN = expr2bdd(EVEN)
 PRIME = expr2bdd(PRIME)
-
 
 
