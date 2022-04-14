@@ -1,26 +1,26 @@
 from pyeda.inter import *
 
-# create graph
+# create graph G that satisfies, all 0 ≤ i, j ≤ 31, there is an edge from node 
+# i to node j iff (i + 3) % 32 = j%32 or (i + 8) % 32 = j % 32
 
 class graph:
     def __init__(self):
-        self.gdict = dict()
-    # get the keys of the dictionary
+        self.gdict = dict() # create dictionary for the graph to be represented
 
-    def addEdge(self, edge):
+    def addEdge(self, edge): # function adds an edge to the graph
         vert1, vert2 = edge[0], edge[1]
         if vert1 in self.gdict.keys():
             self.gdict[vert1].append(vert2)
         else:
             self.gdict[vert1] = [vert2]
 
-    def printGraph(self):
+    def printGraph(self): # prints the graph by dict keys and item list
         for key, list in self.gdict.items():
             print(key, list)
 
-    def boolean_R(self):
+    def boolean_R(self): # contructs the boolean expression for R
         expression = ""
-        dict_list = list(self.gdict.items())
+        dict_list = list(self.gdict.items()) # change the dictionary into a list
 
         new_dict_list = []
         for dict_tuple in dict_list:
@@ -28,8 +28,8 @@ class graph:
             new_dict_list.append((dict_tuple[0], dict_tuple[1][1]))
 
         for i in range(len(new_dict_list)):
-            duo = new_dict_list[i]
-            binary_key = format(duo[0], '05b')
+            pair = new_dict_list[i]
+            binary_key = format(pair[0], '05b') # convert number to binary
             expression += "("
             for j in range(len(binary_key)):
                 if binary_key[j] == "0":
@@ -42,7 +42,7 @@ class graph:
 
             expression += " & "
 
-            binary_key = format(duo[1], '05b')
+            binary_key = format(pair[1], '05b') # convert number to binary
             expression += "("
             for j in range(len(binary_key)):
                 if binary_key[j] == "0":
@@ -55,14 +55,14 @@ class graph:
 
             if self.gdict.keys() != 31:
                 expression += " | "
-        expression = expression[:-3]
+        expression = expression[:-3] # remove the extra spaces and '|'
 
         # print(expression)
 
         return expression
 
 
-R = graph()
+R = graph() # initalize the graph R
 
 # add satisfied edges to graph
 for i in range(0, 32):
@@ -70,8 +70,9 @@ for i in range(0, 32):
         if (i + 3) % 32 == j % 32 or (i + 8) % 32 == j % 32:
             R.addEdge((i, j))
 
-
-xx1, xx2, xx3, xx4, xx5, yy1, yy2, yy3, yy4, yy5, zz1, zz2, zz3, zz4, zz5 = map(bddvar, "xx1 xx2 xx3 xx4 xx5 yy1 yy2 yy3 yy4 yy5 zz1 zz2 zz3 zz4 zz5".split())
+# create bddvars to be used in bdd test cases and manipulation
+xx1, xx2, xx3, xx4, xx5, yy1, yy2, yy3, yy4, yy5, zz1, zz2, zz3, zz4, zz5 = map(bddvar, 
+"xx1 xx2 xx3 xx4 xx5 yy1 yy2 yy3 yy4 yy5 zz1 zz2 zz3 zz4 zz5".split())
 
 
 even_nums = [val for val in range(32) if val % 2 == 0]  # array of even numbers
@@ -81,10 +82,10 @@ prime_nums = [3, 5, 7, 11, 13, 17, 19, 23, 29, 31]  # array of prime numbers
 # R.printGraph()
 
 
-def boolean_even(even_nums):
+def boolean_even(even_nums): # construct the boolean expression for EVEN
     formula = ""
     for i in range(len(even_nums)):
-        binary = format(even_nums[i], '05b')
+        binary = format(even_nums[i], '05b') # convert number to binary
         formula += "("
         for j in range(len(binary)):
             if binary[j] == "0":
@@ -101,10 +102,10 @@ def boolean_even(even_nums):
     return formula
 
 
-def boolean_prime(prime_nums):
+def boolean_prime(prime_nums): # construct boolean expression for PRIME
     formula = ""
     for i in range(len(prime_nums)):
-        binary = format(prime_nums[i], '05b')
+        binary = format(prime_nums[i], '05b') # convert number to binary
         formula += "("
         for j in range(len(binary)):
             if binary[j] == "0":
@@ -120,6 +121,7 @@ def boolean_prime(prime_nums):
     # print("PRIME: " + formula + '\n\n')
     return formula
 
+# convert boolean strings to an expression and then to a bdd (assigning to relative var)
 EVEN = expr2bdd(expr(boolean_even(even_nums)))
 PRIME = expr2bdd(expr(boolean_prime(prime_nums)))
 RR = expr2bdd(expr(R.boolean_R()))
@@ -129,10 +131,13 @@ RR = expr2bdd(expr(R.boolean_R()))
 # Pay attention to the use of BDD variables in your BDDs. Your code shall also verify the following
 # test cases:
 
-# RR(27, 3) is true;
-num1 = format(27, '05b')
-num2 = format(3, '05b')
+print("\n\n***** Test Cases *****")
 
+# RR(27, 3) is true;
+num1 = format(27, '05b') # convert to binary
+num2 = format(3, '05b') # convert to binary
+
+# assign each binary digit to a bddvar passing a dictionary of the elements into the restrict command
 if RR.restrict({xx1: int(num1[0]), xx2: int(num1[1]), xx3: int(num1[2]), xx4: int(num1[3]), xx5: int(num1[4]), yy1: int(num2[0]),
 yy2: int(num2[1]), yy3: int(num2[2]), yy4: int(num2[3]), yy5: int(num2[4])}):
     print("RR(27, 3) is true\n")
@@ -140,9 +145,10 @@ else:
     print("RR(27, 3) is false\n")
 
 # RR(16, 20) is false;
-num1 = format(16, '05b')
-num2 = format(20, '05b')
+num1 = format(16, '05b') # convert to binary
+num2 = format(20, '05b') # convert to binary
 
+# assign each binary digit to a bddvar passing a dictionary of the elements into the restrict command
 if RR.restrict({xx1: int(num1[0]), xx2: int(num1[1]), xx3: int(num1[2]), xx4: int(num1[3]), xx5: int(num1[4]), yy1: int(num2[0]),
 yy2: int(num2[1]), yy3: int(num2[2]), yy4: int(num2[3]), yy5: int(num2[4])}):
     print("RR(16, 20) is true\n")
@@ -151,8 +157,9 @@ else:
 
 
 # EVEN (14) is true;
-num2 = format(14, '05b')
+num2 = format(14, '05b') # convert to binary
 
+# assign each binary digit to a bddvar passing a dictionary of the elements into the restrict command
 if EVEN.restrict({yy1: int(num2[0]), yy2: int(num2[1]), yy3: int(num2[2]), yy4: int(num2[3]), yy5: int(num2[4])}):
     print("EVEN(14) is true\n")
 else:
@@ -160,8 +167,9 @@ else:
 
 
 # EVEN (13) is false;
-num2 = format(13, '05b')
+num2 = format(13, '05b') # convert to binary
 
+# assign each binary digit to a bddvar passing a dictionary of the elements into the restrict command
 if EVEN.restrict({yy1: int(num2[0]), yy2: int(num2[1]), yy3: int(num2[2]), yy4: int(num2[3]), yy5: int(num2[4])}):
     print("EVEN(13) is true\n")
 else:
@@ -169,9 +177,9 @@ else:
 
 
 # PRIME(7) is true;
-num1 = format(7, '05b')
+num1 = format(7, '05b') # convert to binary
 
-
+# assign each binary digit to a bddvar passing a dictionary of the elements into the restrict command
 if PRIME.restrict({xx1: int(num1[0]), xx2: int(num1[1]), xx3: int(num1[2]), xx4: int(num1[3]), xx5: int(num1[4])}):
     print("PRIME(7) is true\n")
 else:
@@ -179,8 +187,9 @@ else:
 
 
 # PRIME(2) is false.
-num1 = format(2, '05b')
+num1 = format(2, '05b') # convert to binary
 
+# assign each binary digit to a bddvar passing a dictionary of the elements into the restrict command
 if PRIME.restrict({xx1: int(num1[0]), xx2: int(num1[1]), xx3: int(num1[2]), xx4: int(num1[3]), xx5: int(num1[4])}):
     print("PRIME(2) is true\n")
 else:
@@ -190,19 +199,22 @@ else:
 # node pairs such that one can reach the other in two steps. Your code shall also verify the following
 # test cases:
 
-def composefunc(side1, side2):
-    side1 = side1.compose({yy1:zz1, yy2:zz2, yy3:zz3, yy4:zz4, yy5:zz5}) 
-    side2 = side2.compose({xx1:zz1, xx2:zz2, xx3:zz3, xx4:zz4, xx5:zz5}) 
+def composefunc(side1, side2): # allows for the reordering of variables
+    side1 = side1.compose({yy1:zz1, yy2:zz2, yy3:zz3, yy4:zz4, yy5:zz5}) # map y variables to z
+    side2 = side2.compose({xx1:zz1, xx2:zz2, xx3:zz3, xx4:zz4, xx5:zz5}) # map x variables to z
 
-    return (side1 & side2).smoothing({zz1, zz2, zz3, zz4, zz5})
+    return (side1 & side2).smoothing({zz1, zz2, zz3, zz4, zz5}) # smooths the two composed sides over variable z
 
 
-RR2 = composefunc(RR, RR)
+RR2 = composefunc(RR, RR) # compose RR and RR resulting in RR2
+
+print("***** Test Cases *****")
 
 # RR2(27, 6) is true;
-num1 = format(27, '05b')
-num2 = format(6, '05b')
+num1 = format(27, '05b') # convert to binary
+num2 = format(6, '05b') # convert to binary
 
+# assign each binary digit to a bddvar passing a dictionary of the elements into the restrict command
 if RR2.restrict({xx1: int(num1[0]), xx2: int(num1[1]), xx3: int(num1[2]), xx4: int(num1[3]), xx5: int(num1[4]), yy1: int(num2[0]),
 yy2: int(num2[1]), yy3: int(num2[2]), yy4: int(num2[3]), yy5: int(num2[4])}):
     print("RR2(27, 6) is true\n")
@@ -211,9 +223,10 @@ else:
 
 
 # RR2(27, 9) is false.
-num1 = format(27, '05b')
-num2 = format(9, '05b')
+num1 = format(27, '05b') # convert to binary
+num2 = format(9, '05b') # convert to binary
 
+# assign each binary digit to a bddvar passing a dictionary of the elements into the restrict command
 if RR2.restrict({xx1: int(num1[0]), xx2: int(num1[1]), xx3: int(num1[2]), xx4: int(num1[3]), xx5: int(num1[4]), yy1: int(num2[0]),
 yy2: int(num2[1]), yy3: int(num2[2]), yy4: int(num2[3]), yy5: int(num2[4])}):
     print("RR2(27, 9) is true\n")
@@ -224,28 +237,32 @@ else:
 # step3.3. Compute the transitive closure RR2star of RR2. Herein, RR2star encodes the set of
 # all node pairs such that one can reach the other in a positive even number of steps.
 RR2star = RR2
-while True:
-    RR2starNew = RR2star
-    RR2star = (RR2starNew | composefunc(RR2starNew, RR2))
-    if RR2starNew.equivalent(RR2star) == 1:
+while True: # continue until condition is broken
+    RR2star_new = RR2star
+    RR2star = (RR2star_new | composefunc(RR2star_new, RR2)) # return RR2starNew or the composition of New and RR2
+    if RR2star_new.equivalent(RR2star) == 1: # break if RR2star_new and RR2star are equal
         break
 
 
 # step3.4. Here comes the most difficult part. We first StatementA formally:
 # ∀u. (PRIME(u) →∃v. (EVEN(v) ∧ RR2star(u, v))).
-U = [xx1, xx2, xx3, xx4, xx5]
-V = [yy1, yy2, yy3, yy4, yy5]
-val = bool((~PRIME) | ((EVEN & PRIME & RR2star).smoothing(V)))
+print("***** Statement A *****")
+
+U = [xx1, xx2, xx3, xx4, xx5] # u is mapped to bits x
+V = [yy1, yy2, yy3, yy4, yy5] # v is mapped to bits y
+
+boolean = (EVEN & PRIME & RR2star).smoothing(V)
+statementA = ~PRIME | boolean
 
 # statementA = (~PRIME) | (EVEN & PRIME & RR2star)
 # statementA = statementA.compose({xx1:zz1, xx2:zz2, xx3:zz3, xx4:zz4, xx5:zz5})
 # statementA = statementA.smoothing({zz1, zz2, zz3, zz4, zz5})
 
-print(RR2star.inputs)
-print(RR2star.equivalent(True))
+print("Check if RR2star has empty imputs: ", RR2star.inputs)
+print("Verify the return value of RR2star is true: ", RR2star.equivalent(True))
 
 
 # print("Statement A truth value: " +  str(statementA.equivalent(True)))
-print("Statement A truth value: " +  str(val))
+print("\nStatement A truth value: " +  str(bool(statementA)))
 
 
