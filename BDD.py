@@ -131,7 +131,7 @@ RR = expr2bdd(expr(R.boolean_R()))
 # Pay attention to the use of BDD variables in your BDDs. Your code shall also verify the following
 # test cases:
 
-print("\n\n***** Test Cases *****")
+print("\n\n******** Test Cases ********")
 
 # RR(27, 3) is true;
 num1 = format(27, '05b') # convert to binary
@@ -208,7 +208,7 @@ def composefunc(side1, side2): # allows for the reordering of variables
 
 RR2 = composefunc(RR, RR) # compose RR and RR resulting in RR2
 
-print("***** Test Cases *****")
+print("******** Test Cases ********")
 
 # RR2(27, 6) is true;
 num1 = format(27, '05b') # convert to binary
@@ -240,29 +240,26 @@ RR2star = RR2
 while True: # continue until condition is broken
     RR2star_new = RR2star
     RR2star = (RR2star_new | composefunc(RR2star_new, RR2)) # return RR2starNew or the composition of New and RR2
-    if RR2star_new.equivalent(RR2star) == 1: # break if RR2star_new and RR2star are equal
+    if RR2star_new.equivalent(RR2star): # break if RR2star_new and RR2star are equal
         break
 
 
 # step3.4. Here comes the most difficult part. We first StatementA formally:
 # ∀u. (PRIME(u) →∃v. (EVEN(v) ∧ RR2star(u, v))).
-print("***** Statement A *****")
+print("******** Statement A ********")
 
-U = [xx1, xx2, xx3, xx4, xx5] # u is mapped to bits x
-V = [yy1, yy2, yy3, yy4, yy5] # v is mapped to bits y
+u = [xx1, xx2, xx3, xx4, xx5] # u is mapped to bits x
+v = [yy1, yy2, yy3, yy4, yy5] # v is mapped to bits y
 
-boolean = (EVEN & PRIME & RR2star).smoothing(V)
+boolean = (EVEN & PRIME & RR2star).smoothing(v) # existential quantifier elimination method
 statementA = ~PRIME | boolean
 
-# statementA = (~PRIME) | (EVEN & PRIME & RR2star)
-# statementA = statementA.compose({xx1:zz1, xx2:zz2, xx3:zz3, xx4:zz4, xx5:zz5})
-# statementA = statementA.smoothing({zz1, zz2, zz3, zz4, zz5})
-
-print("Check if RR2star has empty imputs: ", RR2star.inputs)
-print("Verify the return value of RR2star is true: ", RR2star.equivalent(True))
+# to check that RR2star was implemented correctly
+# print("Check if RR2star has empty imputs: ", RR2star.inputs) # used to make sure inputs are empty
+# print("Verify the return value of RR2star is true: ", RR2star.equivalent(True))
 
 
 # print("Statement A truth value: " +  str(statementA.equivalent(True)))
-print("\nStatement A truth value: " +  str(bool(statementA)))
+print("Statement A truth value: " +  str(bool(statementA)) + '\n')
 
 
